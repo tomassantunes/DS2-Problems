@@ -75,6 +75,7 @@ class Belt {
         }
     }
 
+    // FIX mooshak dá wrong answer
     public Result beltPairs() {
         for(int i = 0; i <= productsFirst; i++) {
             minPairs[i][0] = 0;
@@ -85,46 +86,50 @@ class Belt {
             minPairs[0][j] = 0;
             maxValues[0][j] = 0;
         }
-        // TODO trocar condição value com pair, apagar a pesquisa pelo valor
+
         for(int l = 1; l <=productsFirst; l++) {
             for(int c = 1; c <= productsSecond; c++) {
-                if(typeFirst[l-1].equals(typeSecond[c-1])) {
-                    minPairs[l][c] = 1 + minPairs[l-1][c-1];
-                    maxValues[l][c] = valueFirst[l-1] + valueSecond[c-1] + maxValues[l-1][c-1];
-                } else if(minPairs[l-1][c] >= minPairs[l][c-1]) {
-                    minPairs[l][c] = minPairs[l-1][c];
 
-                    if(maxValues[l-1][c] >= maxValues[l][c-1]) {
-                        maxValues[l][c] = maxValues[l-1][c];
+                if(typeFirst[l-1].equals(typeSecond[c-1])) {
+                    maxValues[l][c] = valueFirst[l-1] + valueSecond[c-1] + maxValues[l-1][c-1];
+                    minPairs[l][c] = 1 + minPairs[l-1][c-1];
+                } else if(maxValues[l-1][c] >= maxValues[l][c-1]) {
+                    maxValues[l][c] = maxValues[l-1][c];
+
+                    if(minPairs[l-1][c] != 0 && minPairs[l][c-1] != 0) {
+                        if(minPairs[l-1][c] <= minPairs[l][c-1]) {
+                            minPairs[l][c] = minPairs[l-1][c];
+                        } else {
+                            minPairs[l][c] = minPairs[l-1][c];
+                        }
                     } else {
-                        maxValues[l][c] = maxValues[l][c-1];
+                        if(minPairs[l-1][c] != 0 && minPairs[l][c-1] == 0) {
+                            minPairs[l][c] = minPairs[l-1][c];
+                        } else {
+                            minPairs[l][c] = minPairs[l][c-1];
+                        }
                     }
                 } else {
-                    minPairs[l][c] = minPairs[l][c-1];
-                    if(maxValues[l-1][c] >= maxValues[l][c-1]) {
-                        maxValues[l][c] = maxValues[l-1][c];
+                    maxValues[l][c] = maxValues[l][c-1];
+
+                    if(minPairs[l-1][c] != 0 && minPairs[l][c-1] != 0) {
+                        if(minPairs[l-1][c] <= minPairs[l][c-1]) {
+                            minPairs[l][c] = minPairs[l-1][c];
+                        } else {
+                            minPairs[l][c] = minPairs[l-1][c];
+                        }
                     } else {
-                        maxValues[l][c] = maxValues[l][c-1];
+                        if(minPairs[l-1][c] != 0 && minPairs[l][c-1] == 0) {
+                            minPairs[l][c] = minPairs[l-1][c];
+                        } else {
+                            minPairs[l][c] = minPairs[l][c-1];
+                        }
                     }
                 }
             }
         }
 
-        long maxValue = Integer.MIN_VALUE;
-        int minPair = Integer.MAX_VALUE;
-        int l = 0;
-        int c = 0;
-        for(int i = 0; i <= productsFirst; i++) {
-            for(int j = 0; j <= productsSecond; j++) {
-                if(maxValues[i][j] > maxValue && minPairs[i][j] < minPair) {
-                    maxValue = maxValues[i][j];
-                    l = i;
-                    c = j;
-                }
-            }
-        }
-
-        return new Result(maxValues[l][c], minPairs[l][c]);
+        return new Result(maxValues[productsFirst][productsSecond], minPairs[productsFirst][productsSecond]);
     }
 }
 
