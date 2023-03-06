@@ -75,15 +75,6 @@ class Belt {
         }
     }
 
-    public void printValue() {
-        for(var x: minPairs) {
-            for(var y: x) {
-                System.out.print(y + " ");
-            }
-            System.out.println("");
-        }
-    }
-
     public Result beltPairs() {
         for(int i = 0; i <= productsFirst; i++) {
             minPairs[i][0] = 0;
@@ -95,24 +86,46 @@ class Belt {
             maxValues[0][j] = 0;
         }
 
-        // TOFIX wrong answer
         for(int l = 1; l <=productsFirst; l++) {
             for(int c = 1; c <= productsSecond; c++) {
+                long NValue = maxValues[l-1][c];
+                long WValue = maxValues[l][c-1];
+                int NPair = minPairs[l-1][c];
+                int WPair = minPairs[l][c-1];
 
                 if(typeFirst[l-1].equals(typeSecond[c-1])) {
-                    maxValues[l][c] = valueFirst[l-1] + valueSecond[c-1] + maxValues[l-1][c-1];
-                    minPairs[l][c] = 1 + minPairs[l-1][c-1];
-                } else if(maxValues[l-1][c] >= maxValues[l][c-1]) {
-                    maxValues[l][c] = maxValues[l-1][c];
-                    minPairs[l][c] = minPairs[l-1][c];
+                    long value = valueFirst[l-1] + valueSecond[c-1] + maxValues[l-1][c-1];
+
+                    if(value > NValue && value > WValue) {
+                        maxValues[l][c] = value;
+                        minPairs[l][c] = 1 + minPairs[l-1][c-1];
+                    } else {
+                        if(NValue >= WValue) {
+                            maxValues[l][c] = NValue;
+                            if(WValue == NValue && WPair < NPair) {
+                                minPairs[l][c] = WPair;
+                            } else {
+                                minPairs[l][c] = NPair;
+                            }
+                        } else {
+                            maxValues[l][c] = WValue;
+                            minPairs[l][c] = WPair;
+                        }
+                    }
+                } else if(NValue >= WValue) {
+                    maxValues[l][c] = NValue;
+
+                    if(WValue == NValue && WPair < NPair) {
+                        minPairs[l][c] = WPair;
+                    } else {
+                        minPairs[l][c] = NPair;
+                    }
                 } else {
-                    maxValues[l][c] = maxValues[l][c-1];
-                    minPairs[l][c] = minPairs[l][c-1];
+                    maxValues[l][c] = WValue;
+                    minPairs[l][c] = WPair;
                 }
             }
         }
-
-        printValue();
 
         return new Result(maxValues[productsFirst][productsSecond], minPairs[productsFirst][productsSecond]);
     }
