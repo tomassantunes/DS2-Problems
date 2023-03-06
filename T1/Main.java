@@ -23,14 +23,16 @@ class Main {
             for(int j = 0; j < productsSecond; j++)
                 secondBelt[j] = input.readLine();
 
-            Pairs pairs = new Pairs(productsFirst, productsSecond);
+            Belt pairs = new Belt(productsFirst, productsSecond);
             pairs.setProducts(1, firstBelt);
             pairs.setProducts(2, secondBelt);
+
+            pairs.beltPairs();
         }
     }
 }
 
-class Pairs {
+class Belt {
     // first belt
     int productsFirst;
     String[] typeFirst;
@@ -41,10 +43,10 @@ class Pairs {
     String[] typeSecond;
     int[] valueSecond;
 
-    long[][] maxValue;
+    long[][] maxValues;
     int[][] minPairs;
 
-    public Pairs(int productsFirst, int productsSecond) {
+    public Belt(int productsFirst, int productsSecond) {
         this.productsFirst = productsFirst;
         typeFirst = new String[productsFirst];
         valueFirst = new int[productsFirst];
@@ -53,8 +55,8 @@ class Pairs {
         typeSecond = new String[productsSecond];
         valueSecond = new int[productsSecond];
 
-        maxValue = new long[productsFirst][productsSecond];
-        minPairs = new int[productsFirst][productsSecond];
+        maxValues = new long[productsFirst + 1][productsSecond + 1];
+        minPairs = new int[productsFirst + 1][productsSecond + 1];
     }
 
     public void setProducts(int belt, String[] products) {
@@ -71,5 +73,63 @@ class Pairs {
                 valueSecond[i] = Integer.parseInt(product[2]);
             }
         }
+    }
+
+    public Result beltPairs() {
+        for(int i = 0; i <= productsFirst; i++) {
+            minPairs[i][0] = 0;
+            maxValues[i][0] = 0;
+        }
+
+        for(int j = 0; j <= productsSecond; j++) {
+            minPairs[0][j] = 0;
+            maxValues[0][j] = 0;
+        }
+        // TODO trocar condição value com pair, apagar a pesquisa pelo valor
+        for(int l = 1; l <=productsFirst; l++) {
+            for(int c = 1; c <= productsSecond; c++) {
+                if(typeFirst[l-1].equals(typeSecond[c-1])) {
+                    minPairs[l][c] = 1 + minPairs[l-1][c-1];
+                    maxValues[l][c] = valueFirst[l-1] + valueSecond[c-1] + maxValues[l-1][c-1];
+                } else if(minPairs[l-1][c] >= minPairs[l][c-1]) {
+                    minPairs[l][c] = minPairs[l-1][c];
+
+                    if(maxValues[l-1][c] >= maxValues[l][c-1]) {
+                        maxValues[l][c] = maxValues[l-1][c];
+                    } else {
+                        maxValues[l][c] = maxValues[l][c-1];
+                    }
+                } else {
+                    minPairs[l][c] = minPairs[l][c-1];
+                    if(maxValues[l-1][c] >= maxValues[l][c-1]) {
+                        maxValues[l][c] = maxValues[l-1][c];
+                    } else {
+                        maxValues[l][c] = maxValues[l][c-1];
+                    }
+                }
+            }
+        }
+
+        long maxValue = Integer.MIN_VALUE;
+        int minPair = Integer.MAX_VALUE;
+        int l = 0;
+        int c = 0;
+        for(int i = 0; i <= productsFirst; i++) {
+            for(int j = 0; j <= productsSecond; j++) {
+                if(maxValues[i][j] > maxValue && minPairs[i][j] < minPair) {
+                    maxValue = maxValues[i][j];
+                    l = i;
+                    c = j;
+                }
+            }
+        }
+
+        return new Result(maxValues[l][c], minPairs[l][c]);
+    }
+}
+
+class Result {
+    public Result(long maxValue, int minPair) {
+        System.out.println(maxValue + " " + minPair);
     }
 }
