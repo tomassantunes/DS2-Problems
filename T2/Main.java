@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.nio.channels.Pipe;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,7 +21,7 @@ class Main {
             tmp = input.readLine().split("");
             for(int j = 0; j < C; j++) {
                 map[i][j] = tmp[j];
-                if(map[i][j] == ".") nodes++;
+                if(map[i][j].compareTo(".") == 0) nodes++;
             }
         }
 
@@ -30,7 +29,7 @@ class Main {
 
         for(; T > 0; T--) {
             tmp = input.readLine().split(" ");
-            dream.escape(Integer.parseInt(tmp[0]), Integer.parseInt(tmp[1]));
+            dream.escape(new Point(Integer.parseInt(tmp[0]), Integer.parseInt(tmp[1])));
         }
     }
 }
@@ -59,7 +58,6 @@ class Dream {
         }
 
         buildGraph();
-        printGraph();
     }
 
     public int getPoint(Point u) {
@@ -68,70 +66,44 @@ class Dream {
             c++;
         }
          
-        return pointMap[u.x][u.y];
+        return pointMap[u.x][u.y] - 1;
     }
 
     public void addEdge(Point u, Point v) {
-        if(map[v.x][v.y] == "O") return;
         adj[getPoint(u)].add(v);
     } 
 
-    public void printGraph() {
-        for(var x : adj) {
-            for(var y : x) {
-                System.out.print(y + " ");
-            }
-            System.out.println("");
-        }
-    }
+    /*
+     * Deve construir um grafo, que vai representar todos
+     * os caminhos possíveis de acordo com os bloqueios e limites do mapa
+    */
 
     public void buildGraph() {
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < columns; j++) {
-                if(map[i][j] == ".") {
-                    System.out.println(i + " " + j);
-                    Point u = new Point(i, j);
-
-                    if(i > 0 && i < rows-1 && j > 0 && j < columns-1) {
+                Point u = new Point(i, j);
+                if(map[i][j].compareTo(".") == 0) {
+                    if(i > 0 && map[i-1][j].compareTo(".") == 0) {
                         addEdge(u, new Point(i-1, j));
+                    }
+
+                    if(i < rows - 1 && map[i+1][j].compareTo(".") == 0) {
                         addEdge(u, new Point(i+1, j));
+                    }
+
+                    if(j > 0 && map[i][j-1].compareTo(".") == 0) {
                         addEdge(u, new Point(i, j-1));
+                    }
+
+                    if(j < columns - 1 && map[i][j+1].compareTo(".") == 0) {
                         addEdge(u, new Point(i, j+1));
-                    }
-
-                    if(i == 0) {
-                        if(j == 0) {
-                            addEdge(u, new Point(i, j+1));
-                            addEdge(u, new Point(i+1, j));
-                        } else if(j == columns-1) {
-                            addEdge(u, new Point(i, j-1));
-                            addEdge(u, new Point(i+1, j));
-                        } else {
-                            addEdge(u, new Point(i, j-1));
-                            addEdge(u, new Point(i, j+1));
-                            addEdge(u, new Point(i+1, j));
-                        }
-                    }
-
-                    if(i == rows-1) {
-                        if(j == 0) {
-                            addEdge(u, new Point(i, j+1));
-                            addEdge(u, new Point(i-1, j));
-                        } else if(j == columns-1) {
-                            addEdge(u, new Point(i, j-1));
-                            addEdge(u, new Point(i-1, j));
-                        } else {
-                            addEdge(u, new Point(i, j-1));
-                            addEdge(u, new Point(i, j+1));
-                            addEdge(u, new Point(i-1, j));
-                        }
                     }
                 }
             }
         }
     }
 
-    public int escape(int xi, int yi) {
+    public int escape(Point s) {
         return 0;
     }
 }
@@ -139,9 +111,21 @@ class Dream {
 class Point {
     public int x;
     public int y;
+    public int isHole;
 
     public Point(int x, int y) {
         this.x = x;
         this.y = y;
+        this.isHole = 0;
+    }
+
+    public Point(int x, int y, int isHole) {
+        this.x = x;
+        this.y = y;
+        this.isHole = isHole;
+    }
+
+    public Point sum(Point other) {
+        return new Point(this.x + other.x, this.y + other.y);
     }
 }
