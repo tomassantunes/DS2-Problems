@@ -47,7 +47,7 @@ class Dream {
     int nodes;
     String[][] map;
     List<Point>[] adj;
-    Point[] pontos;
+    // Point[] pontos;
 
     int[][] pointMap;
     int c = 1;
@@ -62,7 +62,7 @@ class Dream {
         this.map = map;
 
         pointMap = new int[rows][columns];
-        pontos = new Point[nodes];
+        // pontos = new Point[nodes];
 
         adj = new List[nodes];
         for(int i = 0; i < nodes; i++) {
@@ -79,7 +79,7 @@ class Dream {
             c++;
         }
 
-        pontos[pointMap[u.x][u.y] - 1] = u;
+        // pontos[pointMap[u.x][u.y] - 1] = u;
 
         return pointMap[u.x][u.y] - 1;
     }
@@ -98,23 +98,39 @@ class Dream {
         int xi = x;
         int yi = y;
 
+        if(x-v1 > 0 && x-v1 < rows-1 && y-v2 > 0 && y-v2 < columns-1 && !map[x-v1][y-v2].equals("O")) {
+            for(Point l : adj[getPoint(new Point(x-v1, y-v2))]) {
+                if(v1 == 1 && v2 == 0 && l.x > x && l.y == y) {
+                    return l;
+                }
+
+                if(v1 == -1 && v2 == 0 && l.x < x && l.y == y) {
+                    return l;
+                }
+
+                if(v1 == 0 && v2 == 1 && l.x == x && l.y > y) {
+                    return l;
+                }
+
+                if(v1 == 0 && v2 == -1 && l.x == x && l.y < y) {
+                    return l;
+                }
+            }
+        }
+
         while(x < rows && x > 0 && y < columns && y > 0) {
             String tmp = map[x+v1][y+v2];
             if(tmp == null) return new Point(NONE, NONE);
 
-            if(tmp.equals(("H"))) {
-                return new Point(x+v1, y+v2);
-            }
-
-            if(tmp.equals("O")) {
-                break;
-            }
-
             if(tmp.equals(".")) {
                 x += v1;
                 y += v2;
+            } else if(tmp.equals("O")) {
+                break;
+            } else if(tmp.equals(("H"))) {
+                return new Point(x+v1, y+v2);
             }
-        }
+       }
 
         if(x == xi && y == yi) return new Point(NONE, NONE);
         return new Point(x, y);
@@ -133,17 +149,16 @@ class Dream {
         }
     }
 
-    void printGraph() {
-        for(int i = 0; i < nodes; i++) {
-            if(pontos[i] == null) break;
-            System.out.print(pontos[i].x + " " + pontos[i].y + " -> ");
-            for(var y : adj[i]) {
-                System.out.print(y.x + " " + y.y + "   ");
-            }
-            System.out.println();
-
-        }
-    }
+    // void printGraph() {
+    //     for(int i = 0; i < nodes; i++) {
+    //         if(pontos[i] == null) break;
+    //         System.out.print(pontos[i].x + " " + pontos[i].y + " -> ");
+    //         for(var y : adj[i]) {
+    //             System.out.print(y.x + " " + y.y + "   ");
+    //         }
+    //         System.out.println();
+    //     }
+    // }
 
     public static final int INFINITY = Integer.MAX_VALUE;
     public static final int NONE = -1;
