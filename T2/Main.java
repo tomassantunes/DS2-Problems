@@ -84,35 +84,40 @@ class Dream {
         adj[getPoint(u)].add(v);
     }
 
-    public Point buildArch(int x, int y, int v1, int v2) {
-        int xi = x;
-        int yi = y;
+    public void buildArch(int x, int y, int v) {
+        for(int i = x; i >= 0 && i < rows; i += v) {
+            char tmp = map[i][y];
 
-        while(x+v1 >= 0 && x+v1 < rows && y+v2 >= 0 && y+v2 < columns) {
-            char tmp = map[x+v1][y+v2];
-
-            if(tmp == '.') {
-                x += v1;
-                y += v2;
-            } else if(tmp == 'O') {
-                if(x == xi && y == yi) break;
-                return new Point(x, y);
+            if(tmp == 'O') {
+                if(i-v == x) break;
+                addEdge(new Point(x,y), new Point(i-v, y));
+                break;
             } else if(tmp == 'H') {
-                return new Point(x+v1, y+v2);
+                addEdge(new Point(x, y), new Point(i, y));
+                break;
             }
-       }
+        }
 
-        return new Point(NONE, NONE);        
+        for(int j = y; j >= 0 && j < columns; j += v) {
+            char tmp = map[x][j];
+
+            if(tmp == 'O') {
+                if(j-v == y) break;
+                addEdge(new Point(x,y), new Point(x, j-v));
+                break;
+            } else if(tmp == 'H') {
+                addEdge(new Point(x, y), new Point(x, j));
+                break;
+            }
+        }
     }
 
     public void buildGraph() {
         for(int i = 0; i < rows; i++) {
             for(int j = 0; j < columns; j++) {
                 if(map[i][j] == '.') {
-                    addEdge(new Point(i, j), buildArch(i, j, 1, 0));
-                    addEdge(new Point(i, j), buildArch(i, j, -1, 0));
-                    addEdge(new Point(i, j), buildArch(i, j, 0, 1));
-                    addEdge(new Point(i, j), buildArch(i, j, 0, -1));
+                    buildArch(i, j, -1);
+                    buildArch(i, j, 1);
                 }
             }
         }
@@ -146,8 +151,7 @@ class Dream {
                     color[vi] = 1;
                     d[vi] = d[u] + 1;
 
-                    if(!v.equals(hole))
-                        Q.add(vi);
+                    if(!v.equals(hole)) Q.add(vi);
                 }
             }
         }
