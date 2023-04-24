@@ -34,7 +34,7 @@ class Main {
             int steps = dream.escape(dream.getPoint(new Point(Integer.parseInt(tmp[0]), Integer.parseInt(tmp[1]))));
 
             if(steps == -1)
-                System.out.println("Stuck.");
+                System.out.println("Stuck");
             else
                 System.out.println(steps);
         }
