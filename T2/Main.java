@@ -47,7 +47,6 @@ class Dream {
     int nodes;
     String[][] map;
     List<Point>[] adj;
-    // Point[] pontos;
 
     int[][] pointMap;
     int c = 1;
@@ -62,7 +61,6 @@ class Dream {
         this.map = map;
 
         pointMap = new int[rows][columns];
-        // pontos = new Point[nodes];
 
         adj = new List[nodes];
         for(int i = 0; i < nodes; i++) {
@@ -70,7 +68,6 @@ class Dream {
         }
 
         buildGraph();
-        // printGraph();
     }
 
     public int getPoint(Point u) {
@@ -78,8 +75,6 @@ class Dream {
             pointMap[u.x][u.y] = c;
             c++;
         }
-
-        // pontos[pointMap[u.x][u.y] - 1] = u;
 
         return pointMap[u.x][u.y] - 1;
     }
@@ -97,26 +92,6 @@ class Dream {
     public Point buildArch(int x, int y, int v1, int v2) {
         int xi = x;
         int yi = y;
-
-        if(x-v1 > 0 && x-v1 < rows-1 && y-v2 > 0 && y-v2 < columns-1 && !map[x-v1][y-v2].equals("O")) {
-            for(Point l : adj[getPoint(new Point(x-v1, y-v2))]) {
-                if(v1 == 1 && v2 == 0 && l.x > x && l.y == y) {
-                    return l;
-                }
-
-                if(v1 == -1 && v2 == 0 && l.x < x && l.y == y) {
-                    return l;
-                }
-
-                if(v1 == 0 && v2 == 1 && l.x == x && l.y > y) {
-                    return l;
-                }
-
-                if(v1 == 0 && v2 == -1 && l.x == x && l.y < y) {
-                    return l;
-                }
-            }
-        }
 
         while(x < rows && x > 0 && y < columns && y > 0) {
             String tmp = map[x+v1][y+v2];
@@ -149,30 +124,19 @@ class Dream {
         }
     }
 
-    // void printGraph() {
-    //     for(int i = 0; i < nodes; i++) {
-    //         if(pontos[i] == null) break;
-    //         System.out.print(pontos[i].x + " " + pontos[i].y + " -> ");
-    //         for(var y : adj[i]) {
-    //             System.out.print(y.x + " " + y.y + "   ");
-    //         }
-    //         System.out.println();
-    //     }
-    // }
-
     public static final int INFINITY = Integer.MAX_VALUE;
     public static final int NONE = -1;
 
     public int escape(int s) {
-        int[] done = new int[nodes];
+        int[] color  = new int[nodes];
         int[] d = new int[nodes];
 
         for(int u = 0; u < nodes; u++) {
-            done[u] = 0;
+            color[u] = 0;
             d[u] = INFINITY;
         }
 
-        done[s] = 1;
+        color[s] = 1;
         d[s] = 0;
 
         Queue<Integer> Q = new LinkedList<>();
@@ -183,8 +147,8 @@ class Dream {
 
             for(Point v : adj[u]) {
                 int vi = getPoint(v);
-                if(done[vi] == 0) {
-                    done[vi] = 1;
+                if(color[vi] == 0) {
+                    color[vi] = 1;
                     d[vi] = d[u] + 1;
 
                     if(!v.equals(hole))
