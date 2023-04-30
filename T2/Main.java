@@ -75,8 +75,6 @@ class Dream {
     }
 
     public void addEdge(Point u, Point v) {
-        if(v.x == -1 && v.y == -1) return;
-
         if(map[v.x][v.y] == 'H') {
             hole = v;
         }
