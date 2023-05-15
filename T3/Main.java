@@ -34,8 +34,6 @@ class Alertland {
     int R;
     int nodes;
     int source;
-    int[] pop; // population size of each region
-    int[] dep; // departure capacity of each region
     List<Rail>[] rails;
 
     private static final int INFINITY = Integer.MAX_VALUE;
@@ -47,9 +45,6 @@ class Alertland {
         this.nodes = (R*2) + 1;
         this.source = 0;
 
-        this.pop = new int[this.R];
-        this.dep = new int[this.R];
-
         this.rails = new List[nodes];
         for(int i = 0; i < nodes; i++) {
             this.rails[i] = new LinkedList<>();
@@ -57,9 +52,6 @@ class Alertland {
     }
 
     public void addRegion(int i, int pop, int dep) {
-        this.pop[i] = pop;
-        this.dep[i] = dep;
-
         rails[source].add(new Rail(i+1, pop));
         rails[i+1].add(new Rail(i+1+R, dep));
     }
@@ -70,21 +62,35 @@ class Alertland {
         rails[r2+R].add(new Rail(r1, INFINITY));
     }
 
-    public void printDep() {
-        for(var x : dep) {
-            System.out.print(x + " ");
-        }
-        System.out.println();
+    public void addRail(int r1, int r2, int c) {
+        rails[r1].add(new Rail(r2, c));
     }
 
-    public void printRails() {
+    // public void printRails() {
+    //     for(int i = 0; i < nodes; i++) {
+    //         System.out.print(i + " ");
+    //         for(var x : rails[i]) {
+    //             System.out.print(x.d + " " + x.c + " ");
+    //         }
+    //         System.out.println();
+    //     }
+    // }
+
+    private Alertland buildResidualNetwork() {
+        Alertland r = new Alertland(R);
+
         for(int i = 0; i < nodes; i++) {
-            System.out.print(i + " ");
-            for(var x : rails[i]) {
-                System.out.print(x.d + " " + x.c + " ");
+            for(Rail e : rails[i]) {
+                int destination = e.d;
+                int capacity = e.c;
+                int flow = e.f;
+
+                r.addRail(i, destination, capacity - flow);
+                r.addRail(i, destination, flow);
             }
-            System.out.println();
         }
+
+        return r;
     }
 
     private void updateResidualCapacity(int from, int to, int capacity, int flow) {
@@ -103,7 +109,7 @@ class Alertland {
         }
     }
 
-    private void incrementFlow(int[] p, int increment, int sink) {
+    private void incrementFlow(int[] p, int increment, Alertland r, int sink) {
         int v = sink;
         int u = p[v];
 
@@ -113,7 +119,7 @@ class Alertland {
             for(Rail e : rails[u]) {
                 if(e.d == v) {
                     e.f += increment;
-                    updateResidualCapacity(u, v, e.c, e.f);
+                    r.updateResidualCapacity(u, v, e.c, e.f);
                     uv = 1;
                     break;
                 }
@@ -123,7 +129,7 @@ class Alertland {
                 for(Rail e : rails[v]) {
                     if(e.d == u) {
                         e.f -= increment;
-                        updateResidualCapacity(v, u, e.c, e.f);
+                        r.updateResidualCapacity(v, u, e.c, e.f);
                         break;
                     }
                 }
@@ -167,12 +173,13 @@ class Alertland {
     }
 
     public int edmondsKarp(int sink) {
+        Alertland r = buildResidualNetwork();
         int flowValue = 0;
         int[] p = new int[nodes];
         int increment;
 
-        while((increment = findPath(p, sink)) > 0) {
-            incrementFlow(p, increment, sink);
+        while((increment = r.findPath(p, sink)) > 0) {
+            incrementFlow(p, increment, r, sink);
             flowValue += increment;
         }
 
