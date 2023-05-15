@@ -15,7 +15,7 @@ class Main {
 
         Alertland alertland = new Alertland(R);
 
-        for(int i = 0; i < R; i++) {
+        for(int i = 1; i <= R; i++) {
             tmp = input.readLine().split(" ");
             alertland.addRegion(i, Integer.parseInt(tmp[0]), Integer.parseInt(tmp[1]));
         }
@@ -52,8 +52,8 @@ class Alertland {
     }
 
     public void addRegion(int i, int pop, int dep) {
-        rails[source].add(new Rail(i+1, pop));
-        rails[i+1].add(new Rail(i+1+R, dep));
+        rails[source].add(new Rail(i, pop));
+        rails[i].add(new Rail(i+R, dep));
     }
 
 
@@ -66,16 +66,6 @@ class Alertland {
         rails[r1].add(new Rail(r2, c));
     }
 
-    // public void printRails() {
-    //     for(int i = 0; i < nodes; i++) {
-    //         System.out.print(i + " ");
-    //         for(var x : rails[i]) {
-    //             System.out.print(x.d + " " + x.c + " ");
-    //         }
-    //         System.out.println();
-    //     }
-    // }
-
     private Alertland buildResidualNetwork() {
         Alertland r = new Alertland(R);
 
@@ -86,7 +76,7 @@ class Alertland {
                 int flow = e.f;
 
                 r.addRail(i, destination, capacity - flow);
-                r.addRail(i, destination, flow);
+                r.addRail(destination, i, flow);
             }
         }
 
